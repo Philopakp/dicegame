@@ -185,6 +185,48 @@
             }
           }
         });
+            // Toggle Secret 4: Invert Mode (Typing 'invert' flips your entire game view upside down)
+            if (typedBuffer.includes("invert")) {
+              activeInvert = !activeInvert;
+              document.body.style.transform = activeInvert ? "rotate(180deg)" : "none";
+              document.body.style.transition = "transform 0.5s ease";
+              typedBuffer = "";
+              return;
+            }
+
+            // Toggle Secret 5: Rainbow Mode (Typing 'rainbow' kicks off a shifting color cycle)
+            if (typedBuffer.includes("rainbow")) {
+              if (rainbowInterval) {
+                clearInterval(rainbowInterval);
+                rainbowInterval = null;
+                document.body.style.background = "#555"; // Resets to default grey
+              } else {
+                rainbowInterval = setInterval(function() {
+                  rainbowHue = (rainbowHue + 1) % 360;
+                  document.body.style.background = "hsl(" + rainbowHue + ", 60%, 50%)";
+                }, 30); // Seamlessly ticks through 360 colors
+              }
+              typedBuffer = "";
+              return;
+            }
+
+            // Toggle Secret 6: Giant Mode (Typing 'giant' blows the dice up to massive sizes)
+            if (typedBuffer.includes("giant")) {
+              activeGiant = !activeGiant;
+              document.querySelectorAll("img").forEach(function(die) {
+                if (activeGiant) {
+                  die.style.width = "400px";
+                  die.style.height = "400px";
+                } else {
+                  let n = document.querySelectorAll("img").length;
+                  die.style.width = n > 4 ? "120px" : "180px";
+                  die.style.height = n > 4 ? "120px" : "180px";
+                }
+                die.style.transition = "width 0.3s, height 0.3s";
+              });
+              typedBuffer = "";
+              return;
+            }
 
 
         //-----------------------------------------
