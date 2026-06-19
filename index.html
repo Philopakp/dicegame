@@ -63,23 +63,24 @@
         background: rgba(0,0,0,.15);
       }
 
-      #snippet {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 5%;
-        color: #fff;
-        text-align: center;
-        width: auto;
-        margin: 0 auto;
-      }
+#snippet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5%;
+  color: #fff;
+  text-align: center;
+  width: auto;
+  margin: 0 auto;
+}
 
-      #snippet #dice-thrower-snippet, 
-      #snippet #dice-thrower-snippet p {
-        display: block;
-        margin: 0 auto;
-        text-align: center;
-      }
+#snippet #dice-thrower-snippet, 
+#snippet #dice-thrower-snippet p {
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
+
 
       a {
         color: inherit;
@@ -99,7 +100,7 @@
 
         var container = document.querySelector("body > div");
         var dice = [document.querySelector("img")];
-        var nums =; 
+        var nums = [2]; 
         var sound = new Audio("roll.mp3"); 
         var colors = [
           "255, 87, 34",
@@ -110,10 +111,10 @@
           "121, 85, 72"
         ];
 
-        // --- FIXED CHEAT CODE & SECRETS ENGINE ---
+        // --- CHEAT CODE ENGINE ---
         var typedBuffer = ""; 
         var forcedRoll = null; 
-        
+
         document.addEventListener("keydown", function(e) {
           if (e.key === " " || e.key === "Enter") {
             roll();
@@ -123,27 +124,21 @@
           if (e.key.length === 1) {
             typedBuffer += e.key.toLowerCase();
             
-            // Expanded buffer limit to 6 so it can cleanly hold the word "secret"
             if (typedBuffer.length > 6) {
               typedBuffer = typedBuffer.slice(-6);
             }
-
-            // Secret Page Check: Ran inside the event block so it checks on every single key hit
-            if (typedBuffer === "secret") {
+ if (typedBuffer === "secret") {
               window.location.href = "./secrets.html";
               return;
             }
-
-            // Dice Cheat Check: Look specifically at the last 2 digits of our active keystroke string
-            var lastTwo = typedBuffer.slice(-2);
-            if (/^p[1-6]$/.test(lastTwo)) {
-              forcedRoll = parseInt(lastTwo.charAt(1)); 
+            if (/^p[1-6]$/.test(typedBuffer)) {
+              forcedRoll = parseInt(typedBuffer.charAt(1)); 
               console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-              typedBuffer = ""; // Reset buffer after code hits
+              typedBuffer = ""; 
             }
           }
         });
-        // -----------------------------------------
+        // -------------------------
 
         function roll(e) {
           let id = e && e.target ? e.target.getAttribute("id") : null;
