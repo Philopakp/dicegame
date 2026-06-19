@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Dice Roller</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100vw;
+        margin: 0;
+        box-sizing: border-box;
+        padding: 32px 32px 64px;
+        background: #555;
+        user-select: none;
+        overflow: hidden;
+        cursor: pointer;
+        transition: 1s background;
+      }
+
+      body>div {
+        text-align: center;
+      }
+
+      img {
+        width: 220px;
+        height: 220px;
+      }
+
+      @keyframes roll {
+        25% { transform: rotate(95deg) }
+        50% { transform: rotate(180deg) }
+        75% { transform: rotate(-95deg) }
+      }
+
+      footer {
+        position: fixed;
+        top: 2vmin;
+        right: 2vmin;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 24px;
+        background: rgba(0,0,0,.1);
+        color: #fff;
+        text-align: center;
+        display: flex;
+        gap: 15px;
+        z-index: 10;
+      }
+        
+      footer:hover {
+        background: rgba(0,0,0,.15);
+      }
+
+      #snippet {
+        position: absolute;
+        width: 80%;
+        left: 10%;
+        bottom: 5%;
+        color: #fff;
+      }
+
+      a {
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <div><img alt="2" src="2.svg"></div>
+    <footer>
+      <div id="js-increase">+</div>
+      <div id="js-decrease">-</div>
+    </footer>
+    <div id="snippet"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+
+        // initializations
+        var container = document.querySelector("div");
+        var dice = [document.querySelector("img")];
+        var nums =;
+        var sound = new Audio("roll.mp3"); // Path flattened: removed a/
+        var colors = [
+          "255, 87, 34",
+          "76, 175, 80",
+          "33, 150, 243",
+          "63, 81, 181",
+          "244, 143, 177",
+          "121, 85, 72"
+        ];
+
+        // roll all dice
+        function roll(e) {
+          
+          let id = e.target.getAttribute("id");
+          if (id === "js-increase" || id === "js-decrease" || id === "js-link")
+            return;
+          
+          for (let i = 0; i < dice.length; i++) {
+            let die = dice[i];
+            
+            if (die.style.animation) return;
+            die.style.animation = "roll 1s";
+            sound.play().catch(err => console.log("Audio waiting for interaction."));
+        
+            nums[i] = Math.ceil(6 * Math.random());
+            setTimeout(function() {
+              die.style.animation = "";
+              die.src = nums[i] + ".svg"; // Path flattened: removed a/
+              die.alt = nums[i];
+            }, 1000);
+          }
+          
+          let color = colors[Math.ceil(6 * Math.random()) - 1];
+          document.body.style.background = "rgb(" + color + ")";
+          
+        }
+
+        document.addEventListener("keydown", roll);
+        document.addEventListener("click", roll);
+
+        sound.load();
+
+        // alter number of dice
+        function numDice(n) {
+          
+          if (n > 9) n = 1;
+          
+          container.innerHTML = "";
+          dice = [];
+          
+          for (let i = 0; i < n; i++) {
+            
+            let die = document.createElement("img");
+            die.src = "2.svg"; // Path flattened: removed a/
+            container.appendChild(die);
+            dice.push(die);
+            
+            let two = n >= 2 && n <= 4;
+            let three = n == 5 || n == 6 || n == 9;
+            let four = n == 7 || n == 8;
+            let six = n == 9;
+            let breaks = [false, false, two, three, four, false, six];
+            if (breaks[i + 1])
+              container.appendChild(document.createElement("br"));
+              
+            let breakIndex = breaks.indexOf(true);
+            let size = 256 / (breakIndex > 0 ? breakIndex : 2);
+            die.style.width = size + "px";
+            die.style.height = size + "px";
+              
+          }
+          
+        }
+
+        document.querySelector("#js-increase").addEventListener("click", function() {
+          if (dice.length < 9)
+            numDice(dice.length + 1);
+        });
+
+        document.querySelector("#js-decrease").addEventListener("click", function() {
+          if (dice.length > 1)
+            numDice(dice.length - 1);
+        });
+
+        // HTML Snippet path flattened to root directory
+        if (window.navigator.onLine) {
+          function addSnippet(response) {
+            if (response.includes("dice-thrower-snippet"))
+              document.querySelector("#snippet").innerHTML = response;
+            else document.body.style.paddingBottom = "32px";
+          }
+          fetch("./snippet.html")
+            .then(response => response.text())
+            .then(response => addSnippet(response))
+            .catch(() => document.body.style.paddingBottom = "32px");
+        } else document.body.style.paddingBottom = "32px";
+
+      });
+    </script>
+  </body>
+</html>
