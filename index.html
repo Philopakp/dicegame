@@ -127,18 +127,23 @@
             if (typedBuffer.length > 6) {
               typedBuffer = typedBuffer.slice(-6);
             }
- if (typedBuffer === "secret") {
+
+            if (typedBuffer === "secret") {
               window.location.href = "./secrets.html";
               return;
             }
-            if (/^p[1-6]$/.test(typedBuffer)) {
-              forcedRoll = parseInt(typedBuffer.charAt(1)); 
+
+            // FIX: Pull just the last 2 characters typed so the check is always accurate
+            var lastTwo = typedBuffer.slice(-2);
+            if (/^p[1-6]$/.test(lastTwo)) {
+              forcedRoll = parseInt(lastTwo.charAt(1)); 
               console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-              typedBuffer = ""; 
+              typedBuffer = ""; // Resets the buffer so it doesn't loop
             }
           }
         });
         // -------------------------
+
 
         function roll(e) {
           let id = e && e.target ? e.target.getAttribute("id") : null;
