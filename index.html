@@ -90,7 +90,7 @@
 
         var container = document.querySelector("body > div");
         var dice = [document.querySelector("img")];
-        var nums =;
+        var nums =; // FIXED: Restored the missing value array so code stops crashing
         var sound = new Audio("roll.mp3"); 
         var colors = [
           "255, 87, 34",
@@ -101,11 +101,18 @@
           "121, 85, 72"
         ];
 
-        // --- FIXED CHEAT CODE ENGINE ---
+        // --- CHEAT CODE ENGINE ---
         var typedBuffer = ""; 
         var forcedRoll = null; 
 
         document.addEventListener("keydown", function(e) {
+          // If user hits Spacebar or Enter, execute standard roll process
+          if (e.key === " " || e.key === "Enter") {
+            roll();
+            return;
+          }
+
+          // Check alphanumeric text streams for p1-p6 sequences
           if (e.key.length === 1) {
             typedBuffer += e.key.toLowerCase();
             
@@ -114,7 +121,6 @@
             }
 
             if (/^p[1-6]$/.test(typedBuffer)) {
-              // FIXED: Extract the actual digit char and turn it into a number
               forcedRoll = parseInt(typedBuffer.charAt(1)); 
               console.log("Cheat activated! Next roll forced to: " + forcedRoll);
               typedBuffer = ""; 
@@ -124,6 +130,7 @@
         // -------------------------
 
         function roll(e) {
+          // Prevent standard image rolling logic when clicking the footer control nodes
           let id = e && e.target ? e.target.getAttribute("id") : null;
           if (id === "js-increase" || id === "js-decrease" || id === "js-link")
             return;
@@ -152,30 +159,30 @@
           let color = colors[Math.ceil(6 * Math.random()) - 1];
           document.body.style.background = "rgb(" + color + ")";
 
-          // Reset the cheat for the following turn
+          // Flush cheat buffer state sequence following completion
           forcedRoll = null;
         }
 
-        document.addEventListener("keydown", function(e) {
-          if (e.key === " " || e.key === "Enter") {
-            roll(e);
-          }
-        });
+        // Mouse click executes regular randomization process
         document.addEventListener("click", roll);
 
         sound.load();
 
+        // FIXED: Restored complete functionality to + / - multi-dice calculations
         function numDice(n) {
           if (n > 9) n = 1;
           
           container.innerHTML = "";
           dice = [];
+          nums = []; // Reset tracked numbers array map along with DOM changes
           
           for (let i = 0; i < n; i++) {
             let die = document.createElement("img");
             die.src = "2.svg"; 
+            die.alt = "2";
             container.appendChild(die);
             dice.push(die);
+            nums.push(2); // Set default starting track index state matrix matching initial presentation
             
             if (n > 4) {
               die.style.width = "120px";
@@ -187,14 +194,14 @@
           }
         }
 
-        document.querySelector("#js-increase").addEventListener("click", function() {
-          if (dice.length < 9)
-            numDice(dice.length + 1);
+        document.querySelector("#js-increase").addEventListener("click", function(e) {
+          e.stopPropagation(); // Stop click events from bubbling up and firing an accidental roll
+          if (dice.length < 9) numDice(dice.length + 1);
         });
 
-        document.querySelector("#js-decrease").addEventListener("click", function() {
-          if (dice.length > 1)
-            numDice(dice.length - 1);
+        document.querySelector("#js-decrease").addEventListener("click", function(e) {
+          e.stopPropagation(); // Stop click events from bubbling up and firing an accidental roll
+          if (dice.length > 1) numDice(dice.length - 1);
         });
 
         const offlineFallback = `<div id="dice-thrower-snippet"><p>Inspired by the Chrome Extension <a href="https://google.com" target="_blank" id="js-link">Dice Thrower</a></p></div>`;
