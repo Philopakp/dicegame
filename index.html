@@ -115,6 +115,10 @@
         var typedBuffer = ""; 
         var forcedRoll = null; 
 
+        if (typedBuffer === "secret") {
+              window.location.href = "./secrets.html";
+              return;
+            }
         document.addEventListener("keydown", function(e) {
           if (e.key === " " || e.key === "Enter") {
             roll();
