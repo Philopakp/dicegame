@@ -101,7 +101,7 @@
           "121, 85, 72"
         ];
 
-        // --- CHEAT CODE ENGINE ---
+        // --- FIXED CHEAT CODE ENGINE ---
         var typedBuffer = ""; 
         var forcedRoll = null; 
 
@@ -114,6 +114,7 @@
             }
 
             if (/^p[1-6]$/.test(typedBuffer)) {
+              // FIXED: Extract the actual digit char and turn it into a number
               forcedRoll = parseInt(typedBuffer.charAt(1)); 
               console.log("Cheat activated! Next roll forced to: " + forcedRoll);
               typedBuffer = ""; 
@@ -151,6 +152,7 @@
           let color = colors[Math.ceil(6 * Math.random()) - 1];
           document.body.style.background = "rgb(" + color + ")";
 
+          // Reset the cheat for the following turn
           forcedRoll = null;
         }
 
