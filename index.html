@@ -63,12 +63,16 @@
         background: rgba(0,0,0,.15);
       }
 
+      /* UPDATED CSS: Perfectly centers the snippet content horizontally at the bottom */
       #snippet {
         position: absolute;
-        width: 80%;
-        left: 10%;
+        width: 100%;
         bottom: 5%;
+        left: 0;
         color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         text-align: center;
       }
 
@@ -90,7 +94,7 @@
 
         var container = document.querySelector("body > div");
         var dice = [document.querySelector("img")];
-        var nums = [2]; 
+        var nums =; 
         var sound = new Audio("roll.mp3"); 
         var colors = [
           "255, 87, 34",
@@ -198,7 +202,7 @@
           if (dice.length > 1) numDice(dice.length - 1);
         });
 
-        const offlineFallback = `<div id="dice-thrower-snippet"><p>Inspired by the Chrome Extension <a href="https://chromewebstore.google.com/detail/dice-thrower/gandnjjljgomdonoidfcjjockjngkjcc" target="_blank" id="js-link">Dice Thrower</a></p></div>`;
+        const offlineFallback = `<div id="dice-thrower-snippet"><p>Inspired by the Chrome Extension <a href="https://google.com" target="_blank" id="js-link">Dice Thrower</a></p></div>`;
 
         if (window.navigator.onLine) {
           fetch("./snippet.html")
