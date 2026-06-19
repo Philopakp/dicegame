@@ -32,25 +32,16 @@
         max-width: 800px;
       }
 
-      .die {
-        width: 150px;
-        height: 150px;
-        background: white;
-        color: #222;
-        border-radius: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 110px;
-        font-family: sans-serif;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-        transition: transform 0.1s;
+      img {
+        width: 180px;
+        height: 180px;
+        object-fit: contain;
       }
 
       @keyframes roll {
-        25% { transform: rotate(95deg) scale(0.9); }
-        50% { transform: rotate(180deg) scale(0.8); }
-        75% { transform: rotate(-95deg) scale(0.9); }
+        25% { transform: rotate(95deg) }
+        50% { transform: rotate(180deg) }
+        75% { transform: rotate(-95deg) }
       }
 
       footer {
@@ -60,7 +51,7 @@
         padding: 10px 20px;
         border-radius: 30px;
         font-size: 24px;
-        background: rgba(0,0,0,.2);
+        background: rgba(0,0,0,.1);
         color: #fff;
         text-align: center;
         display: flex;
@@ -69,7 +60,7 @@
       }
         
       footer:hover {
-        background: rgba(0,0,0,.3);
+        background: rgba(0,0,0,.15);
       }
 
       #snippet {
@@ -87,7 +78,7 @@
     </style>
   </head>
   <body>
-    <div><div class="die" alt="2">⚁</div></div>
+    <div><img alt="2" src="2.svg"></div>
     <footer>
       <div id="js-increase">+</div>
       <div id="js-decrease">-</div>
@@ -98,12 +89,9 @@
       document.addEventListener("DOMContentLoaded", function() {
 
         var container = document.querySelector("body > div");
-        var dice = [document.querySelector(".die")];
+        var dice = [document.querySelector("img")];
         var nums =;
         var sound = new Audio("roll.mp3"); 
-        
-        var diceFaces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-        
         var colors = [
           "255, 87, 34",
           "76, 175, 80",
@@ -114,24 +102,21 @@
         ];
 
         // --- CHEAT CODE ENGINE ---
-        var typedBuffer = ""; // Stores what the user types
-        var forcedRoll = null; // Stores the forced roll number
+        var typedBuffer = ""; 
+        var forcedRoll = null; 
 
         document.addEventListener("keydown", function(e) {
-          // Ignore key hits if they are part of regular operations like spacebar/enter rolling
           if (e.key.length === 1) {
             typedBuffer += e.key.toLowerCase();
             
-            // Keep only the last two characters typed to check for the code
             if (typedBuffer.length > 2) {
               typedBuffer = typedBuffer.slice(-2);
             }
 
-            // Check if the sequence matches p1, p2, p3, p4, p5, or p6
             if (/^p[1-6]$/.test(typedBuffer)) {
-              forcedRoll = parseInt(typedBuffer[1]); // Extract the number
+              forcedRoll = parseInt(typedBuffer.charAt(1)); 
               console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-              typedBuffer = ""; // Reset buffer
+              typedBuffer = ""; 
             }
           }
         });
@@ -148,9 +133,8 @@
             if (die.style.animation) return;
             die.style.animation = "roll 1s";
             
-            sound.play().catch(err => console.log("Audio skipped."));
+            sound.play().catch(err => console.log("Audio waiting for user interaction."));
         
-            // If a cheat code was typed, use that number. Otherwise, choose randomly.
             if (forcedRoll !== null) {
               nums[i] = forcedRoll;
             } else {
@@ -159,21 +143,18 @@
 
             setTimeout(function() {
               die.style.animation = "";
-              die.textContent = diceFaces[nums[i]]; 
-              die.setAttribute("alt", nums[i]);
+              die.src = nums[i] + ".svg"; 
+              die.alt = nums[i];
             }, 1000);
           }
           
           let color = colors[Math.ceil(6 * Math.random()) - 1];
           document.body.style.background = "rgb(" + color + ")";
 
-          // Crucial: Clear the cheat code after the roll finishes so it doesn't repeat forever
           forcedRoll = null;
         }
 
-        // Updated event listener to pass the event to the roll function cleanly
         document.addEventListener("keydown", function(e) {
-          // Trigger a roll on Spacebar or Enter, but ignore single letters so you can type the cheat code
           if (e.key === " " || e.key === "Enter") {
             roll(e);
           }
@@ -189,22 +170,17 @@
           dice = [];
           
           for (let i = 0; i < n; i++) {
-            let die = document.createElement("div");
-            die.className = "die";
-            die.textContent = "⚁";
+            let die = document.createElement("img");
+            die.src = "2.svg"; 
             container.appendChild(die);
             dice.push(die);
             
             if (n > 4) {
-              die.style.width = "100px";
-              die.style.height = "100px";
-              die.style.fontSize = "70px";
-              die.style.borderRadius = "16px";
+              die.style.width = "120px";
+              die.style.height = "120px";
             } else {
-              die.style.width = "150px";
-              die.style.height = "150px";
-              die.style.fontSize = "110px";
-              die.style.borderRadius = "24px";
+              die.style.width = "180px";
+              die.style.height = "180px";
             }
           }
         }
