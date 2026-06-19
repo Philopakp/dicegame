@@ -111,9 +111,12 @@
           "121, 85, 72"
         ];
 
-                // --- CHEAT CODE ENGINE ---
+                        // --- CHEAT CODE ENGINE & NEW SECRETS ---
         var typedBuffer = ""; 
         var forcedRoll = null; 
+        
+        // Setup state settings for our new custom visual modes
+        var discoInterval = null;
 
         document.addEventListener("keydown", function(e) {
           if (e.key === " " || e.key === "Enter") {
@@ -124,24 +127,61 @@
           if (e.key.length === 1) {
             typedBuffer += e.key.toLowerCase();
             
-            if (typedBuffer.length > 6) {
-              typedBuffer = typedBuffer.slice(-6);
+            // Widened slightly to 7 characters so all new code words fit in memory
+            if (typedBuffer.length > 7) {
+              typedBuffer = typedBuffer.slice(-7);
             }
 
-            if (typedBuffer === "secret") {
+            // Old Secret: Warp to your links page
+            if (typedBuffer.includes("secret")) {
               window.location.href = "./secrets.html";
+              return;
+            }
+
+            // Secret 1: Disco Mode (Typing 'disco' triggers crazy background shifting)
+            if (typedBuffer.includes("disco")) {
+              if (discoInterval) {
+                clearInterval(discoInterval);
+                discoInterval = null;
+              } else {
+                discoInterval = setInterval(function() {
+                  let color = colors[Math.floor(Math.random() * colors.length)];
+                  document.body.style.background = "rgb(" + color + ")";
+                }, 150); // Changes background color every 150 milliseconds
+              }
+              typedBuffer = "";
+              return;
+            }
+
+            // Secret 2: Tiny Mode (Typing 'tiny' shrinks all active images down)
+            if (typedBuffer.includes("tiny")) {
+              document.querySelectorAll("img").forEach(function(die) {
+                die.style.width = die.style.width === "40px" ? "180px" : "40px";
+                die.style.height = die.style.height === "40px" ? "180px" : "40px";
+              });
+              typedBuffer = "";
+              return;
+            }
+
+            // Secret 3: Ghost Mode (Typing 'ghost' makes your dice semi-invisible)
+            if (typedBuffer.includes("ghost")) {
+              document.querySelectorAll("img").forEach(function(die) {
+                die.style.opacity = die.style.opacity === "0.2" ? "1" : "0.2";
+                die.style.transition = "opacity 0.5s";
+              });
+              typedBuffer = "";
               return;
             }
 
             var lastTwo = typedBuffer.slice(-2);
             if (/^p[1-6]$/.test(lastTwo)) {
               forcedRoll = parseInt(lastTwo.charAt(1)); 
-              //console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-              // REMOVED typedBuffer = ""; from here so space/enter rolling doesn't break it
+              console.log("Cheat activated! Next roll forced to: " + forcedRoll);
             }
           }
         });
-        // -------------------------
+        // -----------------------------------------
+
 
 
 
