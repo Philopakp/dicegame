@@ -111,7 +111,7 @@
           "121, 85, 72"
         ];
 
-        // --- CHEAT CODE ENGINE ---
+                // --- CHEAT CODE ENGINE ---
         var typedBuffer = ""; 
         var forcedRoll = null; 
 
@@ -133,16 +133,16 @@
               return;
             }
 
-            // FIX: Pull just the last 2 characters typed so the check is always accurate
             var lastTwo = typedBuffer.slice(-2);
             if (/^p[1-6]$/.test(lastTwo)) {
               forcedRoll = parseInt(lastTwo.charAt(1)); 
-              console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-              typedBuffer = ""; // Resets the buffer so it doesn't loop
+              //console.log("Cheat activated! Next roll forced to: " + forcedRoll);
+              // REMOVED typedBuffer = ""; from here so space/enter rolling doesn't break it
             }
           }
         });
         // -------------------------
+
 
 
         function roll(e) {
