@@ -26,13 +26,29 @@
       h1 {
         font-size: 80px;
         margin: 0 0 10px 0;
-        color: #ff5722; /* Accents the 404 in your dice orange color */
+        color: #ff5722; 
       }
 
       p {
         font-size: 20px;
-        margin: 0 0 30px 0;
+        margin: 0 0 15px 0;
         color: #ccc;
+      }
+
+      /* Stylizes the specific text error code message container box */
+      .error-message {
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px 20px;
+        border-radius: 10px;
+        border-left: 4px solid #ff5722;
+        margin-bottom: 25px;
+        font-family: monospace; /* Monospace keeps it looking like a real code error string */
+      }
+
+      #broken-path {
+        color: #ff9800; /* Accents the missing path name in bright yellow-orange */
+        font-weight: bold;
       }
 
       #countdown {
@@ -49,6 +65,7 @@
         padding: 12px 24px;
         border-radius: 24px;
         background: rgba(0,0,0,0.1);
+        margin-top: 15px;
       }
 
       .back-btn:hover {
@@ -61,12 +78,26 @@
 
   <h1>404</h1>
   <p>Oops! That page rolled off the table.</p>
+  
+  <!-- This box reads your browser address line data to display the text warning -->
+  <div class="error-message">
+    The path <span id="broken-path">/loading...</span> does not exist.
+  </div>
+
   <p>Redirecting back to the game in <span id="countdown">5</span> seconds...</p>
 
   <a href="./index.html" class="back-btn">Go Back Now</a>
 
   <script>
-    // Countdown timer calculation matrix loop
+    // 1. PATH DETECTION ENGINE
+    // Grab the exact text string sitting in the user's browser URL location input bar
+    const currentPath = window.location.pathname;
+    
+    // Inject that specific string safely straight onto the screen element text
+    document.getElementById("broken-path").textContent = currentPath;
+
+
+    // 2. REDIRECT COUNTDOWN MATRIX
     let seconds = 5;
     const countdownElement = document.getElementById("countdown");
     
@@ -76,7 +107,7 @@
       
       if (seconds <= 0) {
         clearInterval(interval);
-        window.location.href = "./index.html"; // Warp player safely home
+        window.location.href = "./index.html"; 
       }
     }, 1000);
   </script>
