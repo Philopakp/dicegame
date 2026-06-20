@@ -1,340 +1,233 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="icon" type="image/png" href="./logo.png">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Dice Thrower</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        width: 100vw;
-        margin: 0;
-        box-sizing: border-box;
-        padding: 32px 32px 64px;
-        background: #555;
-        user-select: none;
-        overflow: hidden;
-        cursor: pointer;
-        transition: 1s background;
-      }
+<head>
+  <!-- Vercel/GitHub are case-sensitive.
+       Ensure these files match exactly:
+       logo.png, roll.mp3, 1.svg, 2.svg, 3.svg, 4.svg, 5.svg, 6.svg,
+       snippet.html, secrets.html -->
+  <link rel="icon" type="image/png" href="./logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dice Thrower</title>
 
-      body>div {
-        text-align: center;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        max-width: 800px;
-      }
+  <style>
+    body{display:flex;justify-content:center;align-items:center;min-height:100vh;width:100vw;margin:0;box-sizing:border-box;padding:32px 32px 64px;background:#555;user-select:none;overflow:hidden;cursor:pointer;transition:1s background}
+    #dice-container{text-align:center;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px;max-width:800px}
+    img{width:180px;height:180px;object-fit:contain}
+    @keyframes roll{25%{transform:rotate(95deg)}50%{transform:rotate(180deg)}75%{transform:rotate(-95deg)}}
+    footer{position:fixed;top:2vmin;right:2vmin;padding:10px 20px;border-radius:30px;font-size:24px;background:rgba(0,0,0,.1);color:#fff;display:flex;gap:15px;z-index:10}
+    footer:hover{background:rgba(0,0,0,.15)}
+    footer button{font-size:24px;border:none;background:transparent;color:#fff;cursor:pointer}
+    #snippet{position:absolute;left:0;right:0;bottom:5%;color:#fff;text-align:center}
+    a{color:inherit}
+  </style>
+</head>
+<body>
 
-      img {
-        width: 180px;
-        height: 180px;
-        object-fit: contain;
-      }
+<div id="dice-container"><img alt="2" src="2.svg"></div>
 
-      @keyframes roll {
-        25% { transform: rotate(95deg) }
-        50% { transform: rotate(180deg) }
-        75% { transform: rotate(-95deg) }
-      }
+<footer>
+  <button id="js-increase" aria-label="Increase dice">+</button>
+  <button id="js-decrease" aria-label="Decrease dice">-</button>
+</footer>
 
-      footer {
-        position: fixed;
-        top: 2vmin;
-        right: 2vmin;
-        padding: 10px 20px;
-        border-radius: 30px;
-        font-size: 24px;
-        background: rgba(0,0,0,.1);
-        color: #fff;
-        text-align: center;
-        display: flex;
-        gap: 15px;
-        z-index: 10;
-      }
-        
-      footer:hover {
-        background: rgba(0,0,0,.15);
-      }
+<div id="snippet"></div>
 
-#snippet {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5%;
-  color: #fff;
-  text-align: center;
-  width: auto;
-  margin: 0 auto;
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+
+const container=document.getElementById("dice-container");
+let dice=[container.querySelector("img")];
+let nums=[2];
+const sound=new Audio("roll.mp3");
+
+const colors=[
+"255, 87, 34","76, 175, 80","33, 150, 243",
+"63, 81, 181","244, 143, 177","121, 85, 72"
+];
+
+let typedBuffer="";
+let forcedRoll=null;
+let activeInvert=false;
+let activeGiant=false;
+let activeTiny=false;
+let discoInterval=null;
+let rainbowInterval=null;
+let rainbowHue=0;
+
+function applyDiceStyles(){
+  dice.forEach(die=>{
+    let size=180;
+    if(activeGiant) size=400;
+    else if(activeTiny) size=40;
+    else if(dice.length>4) size=120;
+
+    die.style.width=size+"px";
+    die.style.height=size+"px";
+    die.style.transition="width .3s,height .3s,opacity .5s";
+  });
 }
 
-#snippet #dice-thrower-snippet, 
-#snippet #dice-thrower-snippet p {
-  display: block;
-  margin: 0 auto;
-  text-align: center;
+applyDiceStyles();
+
+document.addEventListener("keydown",function(e){
+
+  if(e.key===" "||e.key==="Enter"){roll();return;}
+  if(e.key.length!==1)return;
+
+  typedBuffer+=e.key.toLowerCase();
+
+  if(typedBuffer.length>20){
+    typedBuffer=typedBuffer.slice(-20);
+  }
+
+  if(typedBuffer.includes("secret")){
+    window.location.href="./secrets.html";
+    return;
+  }
+
+  if(typedBuffer.includes("disco")){
+    if(discoInterval){
+      clearInterval(discoInterval);
+      discoInterval=null;
+    }else{
+      discoInterval=setInterval(()=>{
+        let c=colors[Math.floor(Math.random()*colors.length)];
+        document.body.style.background="rgb("+c+")";
+      },150);
+    }
+    typedBuffer="";
+    return;
+  }
+
+  if(typedBuffer.includes("tiny")){
+    activeTiny=!activeTiny;
+    if(activeTiny) activeGiant=false;
+    applyDiceStyles();
+    typedBuffer="";
+    return;
+  }
+
+  if(typedBuffer.includes("ghost")){
+    document.querySelectorAll("img").forEach(d=>{
+      d.style.opacity=d.style.opacity==="0.2"?"1":"0.2";
+    });
+    typedBuffer="";
+    return;
+  }
+
+  if(typedBuffer.includes("invert")){
+    activeInvert=!activeInvert;
+    document.body.style.transform=activeInvert?"rotate(180deg)":"none";
+    typedBuffer="";
+    return;
+  }
+
+  if(typedBuffer.includes("rainbow")){
+    if(rainbowInterval){
+      clearInterval(rainbowInterval);
+      rainbowInterval=null;
+      document.body.style.background="#555";
+    }else{
+      rainbowInterval=setInterval(()=>{
+        rainbowHue=(rainbowHue+1)%360;
+        document.body.style.background=`hsl(${rainbowHue},60%,50%)`;
+      },30);
+    }
+    typedBuffer="";
+    return;
+  }
+
+  if(typedBuffer.includes("giant")){
+    activeGiant=!activeGiant;
+    if(activeGiant) activeTiny=false;
+    applyDiceStyles();
+    typedBuffer="";
+    return;
+  }
+
+  const lastTwo=typedBuffer.slice(-2);
+  if(/^p[1-6]$/.test(lastTwo)){
+    forcedRoll=parseInt(lastTwo[1],10);
+  }
+});
+
+function roll(e){
+  const id=e&&e.target?e.target.id:null;
+  if(id==="js-increase"||id==="js-decrease"||id==="js-link") return;
+
+  for(let i=0;i<dice.length;i++){
+    const die=dice[i];
+    if(die.style.animation) return;
+
+    die.style.animation="roll 1s";
+    sound.play().catch(()=>{});
+
+    nums[i]=forcedRoll!==null?forcedRoll:Math.ceil(Math.random()*6);
+
+    setTimeout(()=>{
+      die.style.animation="";
+      die.src=nums[i]+".svg";
+      die.alt=nums[i];
+    },1000);
+  }
+
+  if(!rainbowInterval&&!discoInterval){
+    const c=colors[Math.floor(Math.random()*colors.length)];
+    document.body.style.background="rgb("+c+")";
+  }
+
+  forcedRoll=null;
 }
 
+document.addEventListener("click",roll);
+sound.load();
 
-      a {
-        color: inherit;
-      }
-    </style>
-  </head>
-  <body>
-    <div><img alt="2" src="2.svg"></div>
-    <footer>
-      <div id="js-increase">+</div>
-      <div id="js-decrease">-</div>
-    </footer>
-    <div id="snippet"></div>
+function numDice(n){
+  if(n>9)n=1;
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
+  container.innerHTML="";
+  dice=[];
+  nums=[];
 
-        var container = document.querySelector("body > div");
-        var dice = [document.querySelector("img")];
-        var nums = [2]; 
-        var sound = new Audio("roll.mp3"); 
-        var colors = [
-          "255, 87, 34",
-          "76, 175, 80",
-          "33, 150, 243",
-          "63, 81, 181",
-          "244, 143, 177",
-          "121, 85, 72"
-        ];
+  for(let i=0;i<n;i++){
+    const die=document.createElement("img");
+    die.src="2.svg";
+    die.alt="2";
+    container.appendChild(die);
+    dice.push(die);
+    nums.push(2);
+  }
 
-                        // --- CHEAT CODE ENGINE & NEW SECRETS ---
-        var typedBuffer = ""; 
-        var forcedRoll = null; 
-                // Flags and interval trackers for our new secret modes
-        var activeInvert = false;
-        var activeGiant = false;
-        var rainbowInterval = null;
-        var rainbowHue = 0;
+  applyDiceStyles();
+}
 
-        // Setup state settings for our new custom visual modes
-        var discoInterval = null;
+document.getElementById("js-increase").addEventListener("click",e=>{
+  e.stopPropagation();
+  if(dice.length<9) numDice(dice.length+1);
+});
 
-        document.addEventListener("keydown", function(e) {
-          if (e.key === " " || e.key === "Enter") {
-            roll();
-            return;
-          }
+document.getElementById("js-decrease").addEventListener("click",e=>{
+  e.stopPropagation();
+  if(dice.length>1) numDice(dice.length-1);
+});
 
-          if (e.key.length === 1) {
-            typedBuffer += e.key.toLowerCase();
-            
-            // Widened slightly to 7 characters so all new code words fit in memory
-            if (typedBuffer.length > 7) {
-              typedBuffer = typedBuffer.slice(-7);
-            }
+const offlineFallback='<div id="dice-thrower-snippet"><p>Inspired by the Chrome Extension <a href="https://chromewebstore.google.com/detail/dice-thrower/gandnjjljgomdonoidfcjjockjngkjcc" target="_blank" id="js-link">Dice Thrower</a></p></div>';
 
-            // Old Secret: Warp to your links page
-            if (typedBuffer.includes("secret")) {
-              window.location.href = "./secrets.html";
-              return;
-            }
+if(navigator.onLine){
+  fetch("./snippet.html")
+  .then(r=>{if(!r.ok) throw new Error(); return r.text();})
+  .then(t=>{
+    document.getElementById("snippet").innerHTML=t.includes("dice-thrower-snippet")?t:offlineFallback;
+  })
+  .catch(()=>{
+    document.getElementById("snippet").innerHTML=offlineFallback;
+  });
+}else{
+  document.getElementById("snippet").innerHTML=offlineFallback;
+}
 
-            // Secret 1: Disco Mode (Typing 'disco' triggers crazy background shifting)
-            if (typedBuffer.includes("disco")) {
-              if (discoInterval) {
-                clearInterval(discoInterval);
-                discoInterval = null;
-              } else {
-                discoInterval = setInterval(function() {
-                  let color = colors[Math.floor(Math.random() * colors.length)];
-                  document.body.style.background = "rgb(" + color + ")";
-                }, 150); // Changes background color every 150 milliseconds
-              }
-              typedBuffer = "";
-              return;
-            }
-
-            // Secret 2: Tiny Mode (Typing 'tiny' shrinks all active images down)
-            if (typedBuffer.includes("tiny")) {
-              document.querySelectorAll("img").forEach(function(die) {
-                die.style.width = die.style.width === "40px" ? "180px" : "40px";
-                die.style.height = die.style.height === "40px" ? "180px" : "40px";
-              });
-              typedBuffer = "";
-              return;
-            }
-
-            // Secret 3: Ghost Mode (Typing 'ghost' makes your dice semi-invisible)
-            if (typedBuffer.includes("ghost")) {
-              document.querySelectorAll("img").forEach(function(die) {
-                die.style.opacity = die.style.opacity === "0.2" ? "1" : "0.2";
-                die.style.transition = "opacity 0.5s";
-              });
-              typedBuffer = "";
-              return;
-            }
-
-            var lastTwo = typedBuffer.slice(-2);
-            if (/^p[1-6]$/.test(lastTwo)) {
-              forcedRoll = parseInt(lastTwo.charAt(1)); 
-              console.log("Cheat activated! Next roll forced to: " + forcedRoll);
-            }
-          }
-        });
-            // Toggle Secret 4: Invert Mode (Typing 'invert' flips your entire game view upside down)
-            if (typedBuffer.includes("invert")) {
-              activeInvert = !activeInvert;
-              document.body.style.transform = activeInvert ? "rotate(180deg)" : "none";
-              document.body.style.transition = "transform 0.5s ease";
-              typedBuffer = "";
-              return;
-            }
-
-            // Toggle Secret 5: Rainbow Mode (Typing 'rainbow' kicks off a shifting color cycle)
-            if (typedBuffer.includes("rainbow")) {
-              if (rainbowInterval) {
-                clearInterval(rainbowInterval);
-                rainbowInterval = null;
-                document.body.style.background = "#555"; // Resets to default grey
-              } else {
-                rainbowInterval = setInterval(function() {
-                  rainbowHue = (rainbowHue + 1) % 360;
-                  document.body.style.background = "hsl(" + rainbowHue + ", 60%, 50%)";
-                }, 30); // Seamlessly ticks through 360 colors
-              }
-              typedBuffer = "";
-              return;
-            }
-
-            // Toggle Secret 6: Giant Mode (Typing 'giant' blows the dice up to massive sizes)
-            if (typedBuffer.includes("giant")) {
-              activeGiant = !activeGiant;
-              document.querySelectorAll("img").forEach(function(die) {
-                if (activeGiant) {
-                  die.style.width = "400px";
-                  die.style.height = "400px";
-                } else {
-                  let n = document.querySelectorAll("img").length;
-                  die.style.width = n > 4 ? "120px" : "180px";
-                  die.style.height = n > 4 ? "120px" : "180px";
-                }
-                die.style.transition = "width 0.3s, height 0.3s";
-              });
-              typedBuffer = "";
-              return;
-            }
-
-
-        //-----------------------------------------
-
-
-
-
-        function roll(e) {
-          let id = e && e.target ? e.target.getAttribute("id") : null;
-          if (id === "js-increase" || id === "js-decrease" || id === "js-link")
-            return;
-          
-          for (let i = 0; i < dice.length; i++) {
-            let die = dice[i];
-            
-            if (die.style.animation) return;
-            die.style.animation = "roll 1s";
-            
-            sound.play().catch(err => console.log("Audio waiting for user interaction."));
-        
-            if (forcedRoll !== null) {
-              nums[i] = forcedRoll;
-            } else {
-              nums[i] = Math.ceil(6 * Math.random());
-            }
-
-            setTimeout(function() {
-              die.style.animation = "";
-              die.src = nums[i] + ".svg"; 
-              die.alt = nums[i];
-            }, 1000);
-          }
-          
-          let color = colors[Math.ceil(6 * Math.random()) - 1];
-          document.body.style.background = "rgb(" + color + ")";
-
-          forcedRoll = null;
-        }
-
-        document.addEventListener("click", roll);
-
-        sound.load();
-
-        function numDice(n) {
-          if (n > 9) n = 1;
-          
-          container.innerHTML = "";
-          dice = [];
-          nums = []; 
-          
-          for (let i = 0; i < n; i++) {
-            let die = document.createElement("img");
-            die.src = "2.svg"; 
-            die.alt = "2";
-            container.appendChild(die);
-            dice.push(die);
-            nums.push(2); 
-            
-            if (n > 4) {
-              die.style.width = "120px";
-              die.style.height = "120px";
-            } else {
-              die.style.width = "180px";
-              die.style.height = "180px";
-            }
-            }
-
-          }
-            }
-
-        
-        
-        }
-        
-
-        document.querySelector("#js-increase").addEventListener("click", function(e) {
-          e.stopPropagation(); 
-          if (dice.length < 9) numDice(dice.length + 1);
-        });
-
-        document.querySelector("#js-decrease").addEventListener("click", function(e) {
-          e.stopPropagation(); 
-          if (dice.length > 1) numDice(dice.length - 1);
-        });
-
-        const offlineFallback = `<div id="dice-thrower-snippet"><p>Inspired by the Chrome Extension <a href="https://chromewebstore.google.com/detail/dice-thrower/gandnjjljgomdonoidfcjjockjngkjcc" target="_blank" id="js-link">Dice Thrower</a></p></div>`;
-
-        if (window.navigator.onLine) {
-          fetch("./snippet.html")
-            .then(response => {
-              if (!response.ok) throw new Error("Offline");
-              return response.text();
-            })
-            .then(text => {
-              if (text.includes("dice-thrower-snippet")) {
-                document.querySelector("#snippet").innerHTML = text;
-              } else {
-                document.querySelector("#snippet").innerHTML = offlineFallback;
-              }
-            })
-            .catch(() => {
-              document.querySelector("#snippet").innerHTML = offlineFallback;
-            });
-        } else {
-          document.querySelector("#snippet").innerHTML = offlineFallback;
-        }
-
-      });
-    </script>
-  </body>
+});
+</script>
+</body>
 </html>
