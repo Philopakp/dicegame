@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Dice Thrower</title>
+    <link rel="icon" type="image/png" href="./logo.png">
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100vw;
+        margin: 0;
+        box-sizing: border-box;
+        padding: 20px;
+        background: #333; 
+        color: #fff;
+        font-family: sans-serif;
+        user-select: none;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 80px;
+        margin: 0 0 10px 0;
+        color: #ff5722; /* Accents the 404 in your dice orange color */
+      }
+
+      p {
+        font-size: 20px;
+        margin: 0 0 30px 0;
+        color: #ccc;
+      }
+
+      #countdown {
+        font-weight: bold;
+        color: #2196F3;
+      }
+
+      .back-btn {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 16px;
+        transition: background 0.2s, color 0.2s;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 12px 24px;
+        border-radius: 24px;
+        background: rgba(0,0,0,0.1);
+      }
+
+      .back-btn:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.05);
+      }
+    </style>
+</head>
+<body>
+
+  <h1>404</h1>
+  <p>Oops! That page rolled off the table.</p>
+  <p>Redirecting back to the game in <span id="countdown">5</span> seconds...</p>
+
+  <a href="./index.html" class="back-btn">Go Back Now</a>
+
+  <script>
+    // Countdown timer calculation matrix loop
+    let seconds = 5;
+    const countdownElement = document.getElementById("countdown");
+    
+    const interval = setInterval(() => {
+      seconds--;
+      countdownElement.textContent = seconds;
+      
+      if (seconds <= 0) {
+        clearInterval(interval);
+        window.location.href = "./index.html"; // Warp player safely home
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
