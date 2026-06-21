@@ -16,11 +16,15 @@
     footer button{font-size:24px;border:none;background:transparent;color:#fff;cursor:pointer}
     #snippet{position:absolute;left:0;right:0;bottom:5%;color:#fff;text-align:center}
     a{color:inherit}
+.die{width:180px;height:180px;display:flex;justify-content:center;align-items:center;}
+    .die svg{width:100%;height:100%;}
   </style>
 </head>
 <body>
 
-<div id="dice-container"><img alt="Dice with number 2 on it" src="2.svg"></div>
+<div id="dice-container">
+  <div class="die"></div>
+  </div>
 
 <footer>
   <button id="js-increase" aria-label="Increase dice">+</button>
@@ -31,10 +35,43 @@
 
 <script>
 document.addEventListener("DOMContentLoaded",function(){
+const diceSvgs = [
+"",
 
+// Face 1
+`
+PASTE_SVG_1_HERE
+`,
+
+// Face 2
+`
+PASTE_SVG_2_HERE
+`,
+
+// Face 3
+`
+PASTE_SVG_3_HERE
+`,
+
+// Face 4
+`
+PASTE_SVG_4_HERE
+`,
+
+// Face 5
+`
+PASTE_SVG_5_HERE
+`,
+
+// Face 6
+`
+PASTE_SVG_6_HERE
+`
+];
 const container=document.getElementById("dice-container");
-let dice=[container.querySelector("img")];
-let nums=[2];
+let dice=[container.querySelector(".die")];
+dice[0].innerHTML = diceSvgs[2];
+  let nums=[2];
 const sound=new Audio("roll.mp3");
 
 const colors=[
@@ -50,7 +87,6 @@ let activeTiny=false;
 let discoInterval=null;
 let rainbowInterval=null;
 let rainbowHue=0;
-
 function applyDiceStyles(){
   dice.forEach(die=>{
     let size=180;
