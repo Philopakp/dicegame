@@ -140,7 +140,7 @@ document.addEventListener("keydown",function(e){
   }
 
   if(typedBuffer.includes("ghost")){
-    document.querySelectorAll("img").forEach(d=>{
+    document.querySelectorAll(".die").forEach(d=>{
       d.style.opacity=d.style.opacity==="0.2"?"1":"0.2";
     });
     typedBuffer="";
@@ -198,8 +198,7 @@ function roll(e){
 
     setTimeout(()=>{
       die.style.animation="";
-      die.src=nums[i]+".svg";
-      die.alt=nums[i];
+      die.innerHTML = diceSvgs[nums[i]];
     },1000);
   }
 
@@ -222,9 +221,9 @@ function numDice(n){
   nums=[];
 
   for(let i=0;i<n;i++){
-    const die=document.createElement("img");
-    die.src="2.svg";
-    die.alt="2";
+    const die=document.createElement("div");
+    die.className="die";
+    die.innerHTML=diceSvgs[2];
     container.appendChild(die);
     dice.push(die);
     nums.push(2);
