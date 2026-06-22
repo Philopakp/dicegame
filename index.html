@@ -112,10 +112,10 @@ document.addEventListener("keydown",function(e){
     typedBuffer=typedBuffer.slice(-20);
   }
 
-  if(typedBuffer.includes("secret")){
-    window.location.href="./secrets.html";
+ if(typedBuffer.includes("secret")){
+    window.open("./secrets.html", "_blank");
     return;
-  }
+}
 
   if(typedBuffer.includes("disco")){
     if(discoInterval){
