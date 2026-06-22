@@ -113,9 +113,10 @@ document.addEventListener("keydown",function(e){
   }
 
  if(typedBuffer.includes("secret")){
-    window.open("./secrets.html", "_blank");
+    window.location.href="./secrets.html";
     return;
-}
+  }
+
 
   if(typedBuffer.includes("disco")){
     if(discoInterval){
